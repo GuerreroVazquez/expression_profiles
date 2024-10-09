@@ -46,3 +46,43 @@ def gene_profile(df, gene):
     violin_plot_grouped_by_age(gene_data, gene)  # Make violin plots
 
 
+# Function 4: Violin plot grouped by sex
+def violin_plot_grouped_by_sex(gene_data, gene):
+
+  
+    # Plot violin plot
+    plt.figure(figsize=(8, 6))
+    sns.violinplot(x='Sex', y=gene, data=gene_data)
+    plt.title(f"Violin plot of {gene} grouped by Sex")
+    plt.xlabel("Sex")
+    plt.ylabel(f"Expression of {gene}")
+    plt.grid(True)
+    plt.show()
+
+# Function 5: Violin plot grouped by experiment
+def violin_plot_grouped_by_experiment(gene_data, gene):
+    # Plot violin plot
+    plt.figure(figsize=(8, 6))
+    sns.violinplot(x='Experiment', y=gene, data=gene_data)
+    plt.title(f"Violin plot of {gene} grouped by Experiment")
+    plt.xlabel("Experiment")
+    plt.ylabel(f"Expression of {gene}")
+    plt.grid(True)
+    plt.show()
+
+# Function 6: Violin plot grouped by sex and age group
+def violin_plot_grouped_by_sex_and_age_group(gene_data, gene):
+    
+    # Define age groups
+    bins = [18, 35, 65, 100]
+    labels = ['Young', 'Middle Age', 'Old']
+    gene_data['Age Group'] = pd.cut(gene_data['Age'], bins=bins, labels=labels, right=False)
+    
+    # Plot violin plot
+    plt.figure(figsize=(8, 6))
+    sns.violinplot(x='Age Group', y=gene, hue='Sex', data=gene_data, split=True)
+    plt.title(f"Violin plot of {gene} grouped by Sex and Age Group")
+    plt.xlabel("Age Group")
+    plt.ylabel(f"Expression of {gene}")
+    plt.grid(True)
+    plt.show()
