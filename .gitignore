@@ -163,3 +163,5 @@ cython_debug/
 *.csv
 *.txt
 *.png
+*.jpg
+.virtual_documents/Get-relevant_genes_profiles.ipynb
