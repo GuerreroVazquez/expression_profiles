@@ -1,19 +1,24 @@
 import pandas as pd
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
+from matplotlib import rcParams
 import seaborn as sns
 from scipy.stats import ttest_ind
+
+
 
     # Define age groups
 bins = [18, 35, 65, 100]
 labels = ['Young', 'Middle Age', 'Old']
+palette = {'Male': 'blue', 'Female': 'pink'}
 sig_p_value = 0.05
-
+default_color = 'green'
 def get_gene_and_age(df, gene):
     gene_data = df[['Age', gene]].dropna()
     return gene_data
 
-def plot_expression_over_age(gene_data, gene,save=None):
+def plot_expression_over_age(gene_data, gene,save=None, plot=True):
     plt.figure(figsize=(8, 6))
     plt.plot(gene_data['Age'], gene_data[gene], marker='o')
     plt.title(f"Expression of {gene} over Age")
@@ -24,7 +29,7 @@ def plot_expression_over_age(gene_data, gene,save=None):
         plt.savefig(save)
     plt.show()
 
-def scatter_plot_expression_over_age(gene_data, gene, save=None):
+def scatter_plot_expression_over_age(gene_data, gene, save=None, plot=True):
     plt.figure(figsize=(8, 6))
     sns.scatterplot(x=gene_data['Age'], y=gene_data[gene], hue=gene_data['Age'], palette='viridis', legend=False)
     plt.title(f"Expression of {gene} across Age")
@@ -35,22 +40,25 @@ def scatter_plot_expression_over_age(gene_data, gene, save=None):
         plt.savefig(save)
     plt.show()
 
-def violin_plot_grouped_by_age(gene_data, gene, save=None):
-
+def violin_plot_grouped_by_age(gene_data, gene, save=None, plot=True, color='green'):
+    
     gene_data.loc[:, 'Age Group'] = pd.cut(gene_data['Age'], bins=bins, labels=labels, right=False)
     
     # Plot violin plot
-    plt.figure(figsize=(8, 6))
-    sns.violinplot(x='Age Group', y=gene, data=gene_data)
-    plt.title(f"Violin plot of {gene} grouped by Age")
-    plt.xlabel("Age Group")
-    plt.ylabel(f"Expression of {gene}")
-    plt.grid(True)
+    fig, ax = plt.subplots(figsize=(8, 6))
+    #plt.figure(figsize=(8, 6))
+    sns.violinplot(x='Age Group', y=gene, data=gene_data, color=color)
+    ax.set_title(f"Violin plot of {gene} grouped by Age")
+    ax.set_xlabel("Age Group")
+    ax.set_ylabel(f"Expression of {gene}")
+    ax.grid(True)
     if save:
         plt.savefig(save)
-    plt.show()
+    if plot:
+        plt.show()
+    return fig
 
-def gene_profile(df, gene, save=None):
+def gene_profile(df, gene, save=None, plot=True):
     save_sp = None
     save_vp = None
     if save:
@@ -63,50 +71,58 @@ def gene_profile(df, gene, save=None):
 
 
 # Function 4: Violin plot grouped by sex
-def violin_plot_grouped_by_sex(gene_data, gene, save = None):
+def violin_plot_grouped_by_sex(gene_data, gene, save = None, plot=True, color=None):
 
-  
+    fig, ax = plt.subplots(figsize=(8, 6))
     # Plot violin plot
-    plt.figure(figsize=(8, 6))
-    sns.violinplot(x='Sex', y=gene, data=gene_data)
-    plt.title(f"Violin plot of {gene} grouped by Sex")
-    plt.xlabel("Sex")
-    plt.ylabel(f"Expression of {gene}")
-    plt.grid(True)
+    #plt.figure(figsize=(8, 6))
+    sns.violinplot(x='Sex', y=gene, data=gene_data, palette=palette)
+    ax.set_title(f"Violin plot of {gene} grouped by Sex")
+    ax.set_xlabel("Sex")
+    ax.set_ylabel(f"Expression of {gene}")
+    ax.grid(True)
     if save:
         plt.savefig(save)
-    plt.show()
+    if plot:
+        plt.show()
+    return fig
 
 # Function 5: Violin plot grouped by experiment
-def violin_plot_grouped_by_experiment(gene_data, gene, save = None):
+def violin_plot_grouped_by_experiment(gene_data, gene, save = None, plot=True, color='green'):
     # Plot violin plot
-    plt.figure(figsize=(8, 6))
-    sns.violinplot(x='Experiment', y=gene, data=gene_data)
-    plt.title(f"Violin plot of {gene} grouped by Experiment")
-    plt.xlabel("Experiment")
-    plt.ylabel(f"Expression of {gene}")
-    plt.grid(True)
+    fig, ax = plt.subplots(figsize=(8, 6))
+    #plt.figure(figsize=(8, 6))
+    sns.violinplot(x='Experiment', y=gene, data=gene_data, color=color)
+    ax.set_title(f"Violin plot of {gene} grouped by Experiment")
+    ax.set_xlabel("Experiment")
+    ax.set_ylabel(f"Expression of {gene}")
+    ax.grid(True)
     if save:
         plt.savefig(save)
-    plt.show()
+    if plot:
+        plt.show()
+    return fig
 
 # Function 6: Violin plot grouped by sex and age group
-def violin_plot_grouped_by_sex_and_age_group(gene_data, gene, save=None):
+def violin_plot_grouped_by_sex_and_age_group(gene_data, gene, save=None, plot=True, color=None):
     
 
 
     gene_data['Age Group'] = pd.cut(gene_data['Age'], bins=bins, labels=labels, right=False)
     
     # Plot violin plot
-    plt.figure(figsize=(8, 6))
-    sns.violinplot(x='Age Group', y=gene, hue='Sex', data=gene_data, split=True)
-    plt.title(f"Violin plot of {gene} grouped by Sex and Age Group")
-    plt.xlabel("Age Group")
-    plt.ylabel(f"Expression of {gene}")
-    plt.grid(True)
+    fig, ax = plt.subplots(figsize=(8, 6))
+    #plt.figure(figsize=(8, 6))
+    sns.violinplot(x='Age Group', y=gene, hue='Sex', data=gene_data, split=True, palette=palette)
+    ax.set_title(f"Violin plot of {gene} grouped by Sex and Age Group")
+    ax.set_xlabel("Age Group")
+    ax.set_ylabel(f"Expression of {gene}")
+    ax.grid(True)
     if save:
         plt.savefig(save)
-    plt.show()
+    if plot:
+        plt.show()
+    return fig
 
 
 
@@ -205,3 +221,36 @@ def load_gene_data_with_metadata(csv_file):
         }
 
     return gene_data
+
+def create_violin_pdf(gene_data, genes, output_file, title="Gene Violin Plots", violin_function=violin_plot_grouped_by_age, color='green'):
+    with PdfPages(output_file) as pdf:
+        # Create the index page
+        fig, ax = plt.subplots(figsize=(8.5, 11))  # Letter size page
+        
+        ax.set_frame_on(False)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        
+        # Title for the index
+        ax.text(0.5, 0.95, title, ha='center', fontsize=16, fontweight='bold')
+        
+        # Generate index with clickable links (not yet, just a visual index)
+        y_position = 0.9
+        for i, gene in enumerate(genes):
+            # Add gene name to the index
+            ax.text(0.1, y_position - (i * 0.04), f"{i+1}. {gene}", fontsize=12, ha='left')
+        
+        # Save index page
+        pdf.savefig(fig)
+        plt.close(fig)
+
+        # Create violin plots for each gene using the modified function
+        for gene in genes:
+            # Generate the violin plot and return the figure
+            fig = violin_function(gene_data, gene, color=color)
+            
+            # Save the figure to the PDF
+            pdf.savefig(fig)
+            
+            # Close the figure after saving it to free up memory
+            plt.close(fig)
