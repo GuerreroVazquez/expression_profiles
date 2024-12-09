@@ -104,16 +104,17 @@ def violin_plot_grouped_by_experiment(gene_data, gene, save = None, plot=True, c
     return fig
 
 # Function 6: Violin plot grouped by sex and age group
-def violin_plot_grouped_by_sex_and_age_group(gene_data, gene, save=None, plot=True, color=None):
+def violin_plot_grouped_by_sex_and_age_group(gene_data, gene, save=None, plot=True, palete=None):
     
-
+    if palete is None:
+        palete = palette
 
     gene_data['Age Group'] = pd.cut(gene_data['Age'], bins=bins, labels=labels, right=False)
     
     # Plot violin plot
     fig, ax = plt.subplots(figsize=(8, 6))
     #plt.figure(figsize=(8, 6))
-    sns.violinplot(x='Age Group', y=gene, hue='Sex', data=gene_data, split=True, palette=palette)
+    sns.violinplot(x='Age Group', y=gene, hue='Sex', data=gene_data, split=True, palette=palete)
     ax.set_title(f"Violin plot of {gene} grouped by Sex and Age Group")
     ax.set_xlabel("Age Group")
     ax.set_ylabel(f"Expression of {gene}")
