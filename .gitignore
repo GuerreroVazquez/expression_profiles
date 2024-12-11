@@ -166,3 +166,6 @@ cython_debug/
 *.jpg
 .virtual_documents/Get-relevant_genes_profiles.ipynb
 *.pdf
+data/DDS
+.virtual_documents/*
+plots/boxplot_sex_age_pdf

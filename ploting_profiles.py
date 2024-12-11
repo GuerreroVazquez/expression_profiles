@@ -1,5 +1,5 @@
 import pandas as pd
-import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib import rcParams
@@ -103,8 +103,25 @@ def violin_plot_grouped_by_experiment(gene_data, gene, save = None, plot=True, c
         plt.show()
     return fig
 
+
+def plot_lfc(symbol, candidate_genes, columns_to_plot):
+    gene_data = candidate_genes[candidate_genes['Symbol'] == symbol]
+    
+    fig, ax = plt.subplots(figsize=(12, 6))  # Adjust figure size as needed
+    
+    x = range(len(columns_to_plot))
+    y = [abs(gene_data[col].iloc[0]) for col in columns_to_plot] # Assuming only one row per symbol for now
+    colors = ['green' if gene_data[col].iloc[0] >= 0 else 'red' for col in columns_to_plot]
+
+    ax.bar(x, y, color=colors)
+    ax.set_xticks(x)
+    ax.set_xticklabels(columns_to_plot, rotation=45, ha='right') # Rotate x-axis labels
+    ax.set_title(f'LFC for {symbol}')
+    ax.set_ylabel('Absolute LFC')
+    return fig
+    
 # Function 6: Violin plot grouped by sex and age group
-def violin_plot_grouped_by_sex_and_age_group(gene_data, gene, save=None, plot=True, palete=None):
+def violin_plot_grouped_by_sex_and_age_group(gene_data, gene, save=None, plot=True, palete=None, color=None):
     
     if palete is None:
         palete = palette
@@ -255,3 +272,115 @@ def create_violin_pdf(gene_data, genes, output_file, title="Gene Violin Plots", 
             
             # Close the figure after saving it to free up memory
             plt.close(fig)
+
+
+def create_lfc_pdf(gene_data, genes, output_file, columns_to_plot, title="LogFoldChange Plots"):
+    with PdfPages(output_file) as pdf:
+        # Create the index page
+        fig, ax = plt.subplots(figsize=(8.5, 11))  # Letter size page
+        
+        ax.set_frame_on(False)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        
+        # Title for the index
+        ax.text(0.5, 0.95, title, ha='center', fontsize=16, fontweight='bold')
+        
+        # Generate index with clickable links (not yet, just a visual index)
+        y_position = 0.9
+        for i, gene in enumerate(genes):
+            # Add gene name to the index
+            ax.text(0.1, y_position - (i * 0.04), f"{i+1}. {gene}", fontsize=12, ha='left')
+        
+        # Save index page
+        pdf.savefig(fig)
+        plt.close(fig)
+
+        # Create violin plots for each gene using the modified function
+        for gene in genes:
+            # Generate the violin plot and return the figure
+            fig = plot_lfc(gene, gene_data, columns_to_plot)
+            
+            # Save the figure to the PDF
+            pdf.savefig(fig)
+            
+            # Close the figure after saving it to free up memory
+            plt.close(fig)
+
+
+def box_plot_expression_by_age_and_sex(
+    gene_data, gene, save=None, plot=True, sex_palette=None
+):
+    # Default palette
+    if sex_palette is None:
+        sex_palette = {'Male': 'navy', 'Female': 'salmon'}
+    
+    # Create age groups in 10-year intervals
+    gene_data['Age Group'] = pd.cut(
+        gene_data['Age'], 
+        bins=np.arange(0, gene_data['Age'].max() + 10, 10), 
+        right=False
+        
+    )
+
+    # Initialize the figure
+    fig, ax = plt.subplots(figsize=(12, 8))
+    
+    # Create the box plots
+    sns.boxplot(
+        x='Age Group',
+        y=gene,
+        hue='Sex',
+        data=gene_data,
+        palette=sex_palette
+    )
+    
+    # Customize the plot
+    plt.title(f"Expression of {gene} Across Age Groups by Sex", fontsize=16)
+    plt.xlabel("Age Group", fontsize=14)
+    plt.ylabel(f"Expression of {gene}", fontsize=14)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.legend(title="Sex", fontsize=12, title_fontsize=14)
+    
+    # Save the plot if a file path is provided
+    if save:
+        plt.savefig(save, bbox_inches='tight')
+    
+    # Show the plot
+    if plot:
+        plt.show()
+    return fig
+
+def create_boxplot_pdf(gene_data, genes, output_file, title="Gene Box Plots", boxplot_function=box_plot_expression_by_age_and_sex, color='green'):
+    with PdfPages(output_file) as pdf:
+        # Create the index page
+        fig, ax = plt.subplots(figsize=(8.5, 11))  # Letter size page
+        
+        ax.set_frame_on(False)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        
+        # Title for the index
+        ax.text(0.5, 0.95, title, ha='center', fontsize=16, fontweight='bold')
+        
+        # Generate index with clickable links (not yet, just a visual index)
+        y_position = 0.9
+        for i, gene in enumerate(genes):
+            # Add gene name to the index
+            ax.text(0.1, y_position - (i * 0.04), f"{i+1}. {gene}", fontsize=12, ha='left')
+        
+        # Save index page
+        pdf.savefig(fig)
+        plt.close(fig)
+
+        # Create violin plots for each gene using the modified function
+        for gene in genes:
+            # Generate the violin plot and return the figure
+            fig = box_plot_expression_by_age_and_sex( gene_data, gene, save=None, plot=False, sex_palette=None)
+            
+            # Save the figure to the PDF
+            pdf.savefig(fig)
+            
+            # Close the figure after saving it to free up memory
+            plt.close(fig)
+
